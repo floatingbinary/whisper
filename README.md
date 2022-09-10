@@ -1,6 +1,18 @@
 # whisper
 
-Simple implementation of an Event Bus using the Publish/Subscribe pattern. Whisper comes with default implementations for Google and Redis Pub/Sub. It also provides a simple interface for implementing your own Pub/Sub for example using Kafka.
+Simple implementation of an Event Bus using the Publish/Subscribe pattern. Whisper comes with default implementations for [Google Pub/Sub](https://cloud.google.com/pubsub/docs/overview) and [Redis Pub/Sub](https://redis.io/docs/manual/pubsub/). It also provides a simple interface for implementing your own Pub/Sub for example using [Kafka](https://kafka.apache.org/documentation/).
+
+## Overview
+
+Whisper's event bus allows [publish/subscribe-style](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern) communication between your microservices without requiring the components to explicitly be aware of each other, as shown in the following diagram:
+
+![event-pubsub](./event-driven-communication.png)
+> Source: [.NET Microservices](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/)
+
+A trimmed down version of the above diagram is shown below:
+
+![pubsub-basic](./publish-subscribe-basics.png)
+> Source: [.NET Microservices](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/)
 
 ## Installation
 
