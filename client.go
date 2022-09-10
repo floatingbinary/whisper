@@ -11,7 +11,7 @@ type Client interface {
 	Connect(ctx context.Context, conn string) error
 	Close() error
 	Publish(ctx context.Context, topic string, msg []byte) error
-	Subscribe(d EventDispatcher, subs ...EventHandler) error
+	Subscribe(dispatch EventDispatcher, handlers ...EventHandler) error
 }
 
 func RegisterClient(name string, client Client) {
