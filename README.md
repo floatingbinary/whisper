@@ -32,7 +32,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"time"
+	"sync"
 
 	"github.com/10hourlabs/whisper"
 )
@@ -50,7 +50,7 @@ func (*HelloWorldEvent) GetEventName() whisper.Event {
 }
 
 func (*HelloWorldEvent) GetSubscriptionID() string {
-	return "hello-world-subscription"
+	return "hello-world-sub-id"
 }
 
 func (*HelloWorldEvent) GetContext() context.Context {
@@ -73,13 +73,16 @@ func (*HelloWorldEvent) Handle(ctx context.Context, body []byte) error {
 }
 
 func main() {
-	conf := whisper.NewEventBus(context.Background(), "connection-name")
-	conf.RegisterEvents(&HelloWorldEvent{})
+	bus := whisper.NewEventBus(context.Background(), "connection-string")
+	bus.RegisterEvents(&HelloWorldEvent{})
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 	go func() {
-		if err := whisper.Listen(whisper.NewGooglePubSub(), conf); err != nil {
+		if err := whisper.Listen(bus, whisper.NewGooglePubSub()); err != nil {
 			log.Fatalf("failed to subscribe: %v", err)
 		}
+		wg.Done()
 	}()
-	whisper.Wait(5 * time.Minute)
+	wg.Wait()
 }
 ```

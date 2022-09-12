@@ -52,7 +52,6 @@ func main() {
 	wg.Add(1)
 	go func() {
 		if err := whisper.Listen(bus, whisper.NewGooglePubSub()); err != nil {
-			fmt.Println("an error occurred: ", err)
 			log.Fatalf("failed to subscribe: %v", err)
 		}
 		wg.Done()

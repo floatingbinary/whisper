@@ -29,8 +29,12 @@ func NewEventBus(ctx context.Context, conn string) *EventBus {
 }
 
 func (c *EventBus) RegisterEvents(events ...EventHandler) {
+	// only register events that are not already registered
 	for _, e := range events {
-		c.eventPool[e.GetEventName()] = e
+		if _, ok := c.eventPool[e.GetEventName()]; !ok {
+			c.eventPool[e.GetEventName()] = e
+			c.EventHandlers = append(c.EventHandlers, e)
+		}
 	}
 }
 
