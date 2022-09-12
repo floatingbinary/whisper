@@ -50,7 +50,7 @@ func (*HelloWorldEvent) GetEventName() whisper.Event {
 }
 
 func (*HelloWorldEvent) GetSubscriptionID() string {
-	return "hello-world-sub-id"
+	return "tentn-example-topic-dev-sub"
 }
 
 func (*HelloWorldEvent) GetContext() context.Context {
@@ -68,7 +68,7 @@ func (*HelloWorldEvent) ValidatePayload(payload []byte) error {
 func (*HelloWorldEvent) Handle(ctx context.Context, body []byte) error {
 	var data HelloWorldPayload
 	json.Unmarshal(body, &data) // gauranteed to not error
-	fmt.Printf("%s\r ", data.Message)
+	fmt.Printf("%s\n", data.Message)
 	return nil
 }
 
@@ -79,7 +79,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		if err := whisper.Listen(bus, whisper.NewGooglePubSub()); err != nil {
-			log.Fatalf("failed to subscribe: %v", err)
+			log.Fatalf("failed to subscribe: %v\n", err)
 		}
 		wg.Done()
 	}()
