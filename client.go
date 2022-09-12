@@ -14,8 +14,8 @@ type Client interface {
 	Subscribe(dispatch EventDispatcher, handlers ...EventHandler) error
 }
 
-func RegisterClient(name string, client Client) {
-	connectionPool[name] = client
+func RegisterClient(name string, c Client) {
+	connectionPool[name] = c
 }
 
 func GetClient(conn string) (Client, error) {
@@ -26,12 +26,12 @@ func GetClient(conn string) (Client, error) {
 	return client, nil
 }
 
-func Listen(c Client, conf *EventBus) error {
-	if err := c.Connect(conf.Context, conf.Connection); err != nil {
+func Listen(e *EventBus, c Client) error {
+	if err := c.Connect(e.Context, e.Connection); err != nil {
 		return fmt.Errorf("failed to connect to client: %v", err)
 	}
 	defer c.Close()
 
-	RegisterClient(conf.Connection, c)
-	return c.Subscribe(conf.Dispatch, conf.EventHandlers...)
+	RegisterClient(e.Connection, c)
+	return c.Subscribe(e.Dispatch, e.EventHandlers...)
 }

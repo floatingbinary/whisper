@@ -46,20 +46,20 @@ func (c *GooglePubSub) Subscribe(dispatch EventDispatcher, events ...EventHandle
 		err := sub.Receive(e.GetContext(), func(ctx context.Context, m *pubsub.Message) {
 			err := dispatch(ctx, e.GetEventName(), m.Data)
 			if err == ErrInvalidPayload {
-				fmt.Printf("invalid payload: %v", err)
+				fmt.Printf("invalid payload: %v\n", err)
 				m.Ack()
 			} else if err == ErrEventNotFound {
-				fmt.Printf("event not found: %v", err)
+				fmt.Printf("event not found: %v\n", err)
 				m.Nack()
 			} else if err != nil {
-				fmt.Printf("failed to handle event: %v", err)
+				fmt.Printf("failed to handle event: %v\n", err)
 				m.Nack()
 			} else {
 				m.Ack()
 			}
 		})
 		if err != nil {
-			fmt.Printf("failed to receive message: %v", err)
+			fmt.Printf("failed to receive message: %v\n", err)
 			errMessages = append(errMessages, fmt.Sprintf("failed to receive message: %v", err))
 		}
 	}

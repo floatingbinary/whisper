@@ -28,16 +28,14 @@ go get github.com/10hourlabs/whisper
 package main
 
 import (
-    "context"
-    "fmt"
-    "log"
-    "time"
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"sync"
 
-    "github.com/10hourlabs/whisper"
-    "github.com/10hourlabs/whisper/google"
+	"github.com/10hourlabs/whisper"
 )
-
-type HelloWorldEvent struct {}
 
 type HelloWorldPayload struct {
 	CreatedAt int64  `json:"created_at"`
@@ -45,19 +43,21 @@ type HelloWorldPayload struct {
 	Message   string `json:"message"`
 }
 
-func (h *HelloWorldEvent) GetContext() context.Context {
-	return context.Background()
-}
+type HelloWorldEvent struct{}
 
-func (h *HelloWorldEvent) GetEventName() event.Event {
+func (*HelloWorldEvent) GetEventName() whisper.Event {
 	return "hello-world"
 }
 
-func (h *HelloWorldEvent) GetSubscriptionID() string {
-	return "hello-world-subscription"
+func (*HelloWorldEvent) GetSubscriptionID() string {
+	return "tentn-example-topic-dev-sub"
 }
 
-func (h *HelloWorldEvent) ValidatePayload(payload []byte) error {
+func (*HelloWorldEvent) GetContext() context.Context {
+	return context.Background()
+}
+
+func (*HelloWorldEvent) ValidatePayload(payload []byte) error {
 	var p HelloWorldPayload
 	if err := json.Unmarshal(payload, &p); err != nil {
 		return whisper.ErrInvalidPayload
@@ -68,20 +68,21 @@ func (h *HelloWorldEvent) ValidatePayload(payload []byte) error {
 func (*HelloWorldEvent) Handle(ctx context.Context, body []byte) error {
 	var data HelloWorldPayload
 	json.Unmarshal(body, &data) // gauranteed to not error
-	fmt.Printf("%s\r ", data.Message)
+	fmt.Printf("%s\n", data.Message)
 	return nil
 }
 
 func main() {
-    conf := whisper.NewConfig(context.Background(), "connection-name")
-    conf.RegisterEvents([]whisper.EventHandler{
-        &HelloWorldEvent{},
-    })
-    go func() {
-        if err := whisper.Listen(whisper.NewGooglePubSub(), conf) ; err != nil {
-            log.Fatalf("failed to subscribe: %v", err)
-        }       
-    }()
-    whisper.Wait(time.Second * 5)
+	bus := whisper.NewEventBus(context.Background(), "connection-string")
+	bus.RegisterEvents(&HelloWorldEvent{})
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		if err := whisper.Listen(bus, whisper.NewGooglePubSub()); err != nil {
+			log.Fatalf("failed to subscribe: %v\n", err)
+		}
+		wg.Done()
+	}()
+	wg.Wait()
 }
 ```

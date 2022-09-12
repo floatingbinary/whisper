@@ -29,13 +29,17 @@ func NewEventBus(ctx context.Context, conn string) *EventBus {
 }
 
 func (c *EventBus) RegisterEvents(events ...EventHandler) {
+	// only register events that are not already registered
 	for _, e := range events {
-		c.eventPool[e.GetEventName()] = e
+		if _, ok := c.eventPool[e.GetEventName()]; !ok {
+			c.eventPool[e.GetEventName()] = e
+			c.EventHandlers = append(c.EventHandlers, e)
+		}
 	}
 }
 
-func (c *EventBus) Dispatch(ctx context.Context, event Event, payload []byte) error {
-	handler, ok := c.eventPool[event]
+func (c *EventBus) Dispatch(ctx context.Context, e Event, payload []byte) error {
+	handler, ok := c.eventPool[e]
 	if !ok {
 		return ErrEventNotFound
 	}
