@@ -34,8 +34,8 @@ func (c *EventBus) RegisterEvents(events ...EventHandler) {
 	}
 }
 
-func (c *EventBus) Dispatch(ctx context.Context, event Event, payload []byte) error {
-	handler, ok := c.eventPool[event]
+func (c *EventBus) Dispatch(ctx context.Context, e Event, payload []byte) error {
+	handler, ok := c.eventPool[e]
 	if !ok {
 		return ErrEventNotFound
 	}
